@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "=== Enabling Python 3.11 via Amazon Linux Extras ==="
+      - python3 --version
+      - echo "=== Upgrading pip and installing Python packages ==="
+      - python3 -m pip install --upgrade pip
+      - python3 -m pip install flake8 pytest coverage
+      - echo "=== Installing Trivy ==="
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+      - trivy --version
+
+  pre_build:
+    commands:
+      - echo "=== Pre-build phase ==="
+
+  build:
+    commands:
+      - echo "=== Running tests with coverage ==="
+      - python3 -m coverage run -m pytest
+      - python3 -m coverage report
+      - echo "=== Scanning with Trivy ==="
+      - trivy fs .
+
+artifacts:
+  files:
+    - '**/*'
