@@ -5,6 +5,13 @@ phases:
     runtime-versions:
       python: 3.12
     commands:
+      # Install required dependencies for building Python with SQLite support
+      - sudo yum install -y sqlite-devel zlib-devel bzip2-devel openssl-devel ncurses-devel \
+                    readline-devel tk-devel libffi-devel xz-devel
+      # Rebuild Python 3.13.7 with SQLite support
+      - pyenv uninstall -f 3.13.7
+      - pyenv install 3.13.7
+      - pyenv global 3.13.7
       - pip install -r requirements.txt
       - pip install flake8 pytest coverage
       - echo "Installing Trivy..."
