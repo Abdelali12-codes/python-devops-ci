@@ -3,31 +3,17 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.13
+      python: 3.11
     commands:
-      - echo "=== Installing system dependencies for Python build ==="
+      - echo "=== Installing system dependencies ==="
       - sudo yum groupinstall "Development Tools" -y
-      - sudo yum install -y \
-          bzip2 bzip2-devel zlib-devel xz-devel \
-          libffi-devel readline-devel sqlite-devel \
-          tk-devel wget curl llvm \
-          openssl-devel compat-openssl11
-      - echo "=== Setting environment variables for OpenSSL & SQLite ==="
-      - export LDFLAGS="-L/usr/lib64/openssl11"
-      - export CPPFLAGS="-I/usr/include/openssl11"
-      - export PKG_CONFIG_PATH="/usr/lib64/openssl11/pkgconfig"
-      - export PATH="$HOME/.pyenv/bin:$PATH"
-      - eval "$(pyenv init -)"
-      - eval "$(pyenv virtualenv-init -)"
-      - echo "=== Installing Python 3.13.7 via pyenv ==="
-      - pyenv install -s 3.13.7
-      - pyenv global 3.13.7
-      - python --version
-      - echo "=== Upgrading pip and installing Python packages ==="
-      - pip install --upgrade pip
-      - pip install flake8 pytest coverage
+      - sudo yum install -y wget curl sqlite-devel bzip2 bzip2-devel zlib-devel xz-devel \
+                            libffi-devel readline-devel tk-devel openssl-devel
+      - echo "=== Installing Python packages ==="
+      - python3.11 -m pip install --upgrade pip
+      - python3.11 -m pip install flake8 pytest coverage
       - echo "=== Installing Trivy ==="
-      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
       - trivy --version
 
   pre_build:
@@ -37,8 +23,8 @@ phases:
   build:
     commands:
       - echo "=== Running tests with coverage ==="
-      - coverage run -m pytest
-      - coverage report
+      - python3.11 -m coverage run -m pytest
+      - python3.11 -m coverage report
       - echo "=== Scanning with Trivy ==="
       - trivy fs .
 
