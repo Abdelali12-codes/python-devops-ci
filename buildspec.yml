@@ -9,7 +9,7 @@ phases:
       - python3 -m pip install --upgrade pip
       - python3 -m pip install flake8 pytest coverage
       - echo "=== Installing Trivy ==="
-      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
       - trivy --version
 
   pre_build:
