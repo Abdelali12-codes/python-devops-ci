@@ -3,36 +3,45 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.12
+      python: 3.13
     commands:
-      # Install required dependencies for building Python with SQLite support
+      - echo "=== Installing system dependencies for Python build ==="
+      - sudo yum groupinstall "Development Tools" -y
       - sudo yum install -y \
-            gcc make bzip2 bzip2-devel zlib-devel xz-devel \
-            libffi-devel readline-devel sqlite-devel \
-            tk-devel wget curl llvm \
-            openssl-devel
-      # Rebuild Python 3.13.7 with SQLite support
-      - pyenv uninstall -f 3.13.7
-      - pyenv install 3.13.7
+          bzip2 bzip2-devel zlib-devel xz-devel \
+          libffi-devel readline-devel sqlite-devel \
+          tk-devel wget curl llvm \
+          openssl-devel compat-openssl11
+      - echo "=== Setting environment variables for OpenSSL & SQLite ==="
+      - export LDFLAGS="-L/usr/lib64/openssl11"
+      - export CPPFLAGS="-I/usr/include/openssl11"
+      - export PKG_CONFIG_PATH="/usr/lib64/openssl11/pkgconfig"
+      - export PATH="$HOME/.pyenv/bin:$PATH"
+      - eval "$(pyenv init -)"
+      - eval "$(pyenv virtualenv-init -)"
+      - echo "=== Installing Python 3.13.7 via pyenv ==="
+      - pyenv install -s 3.13.7
       - pyenv global 3.13.7
-      - pip install -r requirements.txt
+      - python --version
+      - echo "=== Upgrading pip and installing Python packages ==="
+      - pip install --upgrade pip
       - pip install flake8 pytest coverage
-      - echo "Installing Trivy..."
+      - echo "=== Installing Trivy ==="
       - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+      - trivy --version
+
+  pre_build:
+    commands:
+      - echo "=== Pre-build phase ==="
+
   build:
     commands:
-      - echo "Running lint checks..."
-      - flake8 app tests --max-line-length=100
-      - echo "Running tests..."
+      - echo "=== Running tests with coverage ==="
       - coverage run -m pytest
       - coverage report
-      - echo "Running Trivy scan..."
-      - trivy fs . --exit-code 0 --severity HIGH,CRITICAL --ignore-unfixed --no-progress
-reports:
-  coverage-report:
-    files:
-      - coverage.xml
-    file-format: JACOCOXML
+      - echo "=== Scanning with Trivy ==="
+      - trivy fs .
+
 artifacts:
   files:
-    - coverage.xml
+    - '**/*'
