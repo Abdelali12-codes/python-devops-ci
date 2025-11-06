@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - pip install -r requirements.txt
+      - pip install flake8 pytest coverage trivy
+  build:
+    commands:
+      - echo "Running lint checks..."
+      - flake8 app tests --max-line-length=100
+      - echo "Running tests..."
+      - coverage run -m pytest
+      - coverage report
+      - echo "Running Trivy scan..."
+      - trivy fs . --exit-code 0 --severity HIGH,CRITICAL --ignore-unfixed --no-progress
+reports:
+  coverage-report:
+    files:
+      - coverage.xml
+    file-format: JACOCOXML
+artifacts:
+  files:
+    - coverage.xml
