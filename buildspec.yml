@@ -8,8 +8,9 @@ phases:
       - sudo yum install -y wget curl sqlite-devel bzip2 bzip2-devel zlib-devel xz-devel \
                             libffi-devel readline-devel tk-devel openssl-devel
       - echo "=== Installing pyenv ==="
+      - export PYENV_ROOT="$HOME/.pyenv"
+      - export PATH="$PYENV_ROOT/bin:$PATH"
       - curl https://pyenv.run | bash
-      - export PATH="$HOME/.pyenv/bin:$PATH"
       - eval "$(pyenv init -)"
       - eval "$(pyenv virtualenv-init -)"
       - echo "=== Installing Python 3.11.13 via pyenv ==="
