@@ -4,7 +4,6 @@ phases:
   install:
     commands:
       - echo "=== Enabling Python 3.11 via Amazon Linux Extras ==="
-      - sudo amazon-linux-extras enable python3.11
       - sudo yum install -y python3.11 python3.11-venv python3.11-devel
       - python3 --version
       - echo "=== Upgrading pip and installing Python packages ==="
