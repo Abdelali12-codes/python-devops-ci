@@ -2,16 +2,23 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: 3.11
     commands:
       - echo "=== Installing system dependencies ==="
       - sudo yum groupinstall "Development Tools" -y
       - sudo yum install -y wget curl sqlite-devel bzip2 bzip2-devel zlib-devel xz-devel \
                             libffi-devel readline-devel tk-devel openssl-devel
+      - echo "=== Installing pyenv ==="
+      - curl https://pyenv.run | bash
+      - export PATH="$HOME/.pyenv/bin:$PATH"
+      - eval "$(pyenv init -)"
+      - eval "$(pyenv virtualenv-init -)"
+      - echo "=== Installing Python 3.11.13 via pyenv ==="
+      - pyenv install -s 3.11.13
+      - pyenv global 3.11.13
+      - python --version
       - echo "=== Installing Python packages ==="
-      - python3.11 -m pip install --upgrade pip
-      - python3.11 -m pip install flake8 pytest coverage
+      - pip install --upgrade pip
+      - pip install flake8 pytest coverage
       - echo "=== Installing Trivy ==="
       - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
       - trivy --version
@@ -23,8 +30,8 @@ phases:
   build:
     commands:
       - echo "=== Running tests with coverage ==="
-      - python3.11 -m coverage run -m pytest
-      - python3.11 -m coverage report
+      - coverage run -m pytest
+      - coverage report
       - echo "=== Scanning with Trivy ==="
       - trivy fs .
 
